@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "test": "vitest run",
     "dev": "tsx watch src/server.ts",
     "migrate:create": "npx node-pg-migrate create -j ts -m src/db/migrations",
@@ -12,7 +13,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
+
   "dependencies": {
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",

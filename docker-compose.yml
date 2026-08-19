@@ -10,6 +10,20 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  app:
+    image: taskmanager:1.0.0
+    container_name: taskmanager
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES: ${JWT_EXPIRES}
+      DATABASE_URL: ${DATABASE_URL}
+    ports: 
+      - "3000:3000"
+    depends_on:
+      - postgres
+  
 
 volumes: 
   postgres_data:

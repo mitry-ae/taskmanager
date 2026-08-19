@@ -1,6 +1,6 @@
+.git
 .env
 /node_modules
 TASK.md
 /docs
 .DS_STORE
-/dist

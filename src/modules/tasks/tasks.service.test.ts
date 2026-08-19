@@ -81,7 +81,7 @@ describe("tasks service tests", () => {
 
     it("getTask return correct array tasks", async () => {
         vi.mocked(tasksRepository.getTasks).mockResolvedValue(tasks)
-        const result = await tasksService.getTask(1, { limit: 15, page: 1 })
+        const result = await tasksService.getTask(1, { limit: 15, page: 1, sort: 'created_at', order: 'desc' })
 
         expect(result).toEqual(tasks)
     })
@@ -89,7 +89,7 @@ describe("tasks service tests", () => {
     it("getTask return empty array if tasks not found", async () => {
         vi.mocked(tasksRepository.getTasks).mockResolvedValue([])
 
-        expect(await tasksService.getTask(1, { limit: 15, page: 1 })).toStrictEqual([])
+        expect(await tasksService.getTask(1, { limit: 15, page: 1, sort: 'created_at', order: 'desc' })).toStrictEqual([])
     })
 
     it("getTaskById return correct task", async () => {
