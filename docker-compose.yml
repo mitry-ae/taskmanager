@@ -42,16 +42,17 @@ services:
       - certbot_www:/var/www/certbot:ro
     depends_on:
       - app
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - certbot_conf:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
     logging:
       driver: json-file
       options:
         max-size: "20m"
         max-file: "3"
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    command: ["certificates"]
 
 volumes:
   postgres_data:
