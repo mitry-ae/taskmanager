@@ -1,11 +1,17 @@
-FROM node:22-slim AS builder
+FROM node:22-slim AS base
 WORKDIR /app
 COPY package.json package-lock.json .
 RUN npm ci
+
+FROM base AS dev
+COPY . .
+CMD ["npm", "run", "dev"]
+
+FROM base AS builder
 COPY . .
 RUN npm run build
 
-FROM node:22-slim
+FROM node:22-slim AS production
 WORKDIR /app
 COPY package.json package-lock.json .
 RUN npm ci --omit=dev
