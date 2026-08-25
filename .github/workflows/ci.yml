@@ -65,5 +65,6 @@ jobs:
             cd /home/taskmanager
             git pull
             docker compose pull
-            docker copmose run --rm app npm run migrate:prod
+            docker compose run --rm app npm run migrate:prod
             docker compose up -d
+            docker compose exec nginx nginx -s reload
