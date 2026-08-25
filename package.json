@@ -8,7 +8,8 @@
     "test": "vitest run",
     "dev": "tsx watch src/server.ts",
     "migrate:create": "npx node-pg-migrate create -j ts -m src/db/migrations",
-    "migrate": "npx node-pg-migrate -m src/db/migrations up"
+    "migrate": "npx node-pg-migrate -m src/db/migrations up",
+    "migrate:prod": "node-pg-migrate -m dist/db/migrations up"
   },
   "keywords": [],
   "author": "",
