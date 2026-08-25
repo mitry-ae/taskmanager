@@ -67,3 +67,4 @@ jobs:
             docker compose pull
             docker copmose run --rm app npm run migrate:prod
             docker compose up -d
+            docker compose exec nginx nginx -s reload
