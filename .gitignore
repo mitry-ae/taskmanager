@@ -4,3 +4,4 @@ TASK.md
 /docs
 .DS_STORE
 /dist
+docker-compose.override.yml
