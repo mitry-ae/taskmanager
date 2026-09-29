@@ -15,7 +15,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
   app:
-    image: ghcr.io/mitry-ae/taskmanager:latest
+    image: ghcr.io/mitry-ae/taskmanager:${IMAGE_TAG:-latest}
     container_name: taskmanager
     environment:
       NODE_ENV: ${NODE_ENV}

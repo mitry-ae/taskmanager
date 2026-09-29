@@ -34,6 +34,8 @@ jobs:
     needs: build-and-test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    outputs:
+      sha_short: ${{steps.vars.outputs.sha_short}}
     permissions:
       contents: read
       packages: write
@@ -45,22 +47,30 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set short sha
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
       - uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ghcr.io/mitry-ae/taskmanager:latest
+          tags: |
+            ghcr.io/mitry-ae/taskmanager:latest
+            ghcr.io/mitry-ae/taskmanager:${{steps.vars.outputs.sha_short}}
   deploy:
     needs: build-and-push
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{needs.build-and-push.outputs.sha_short}}
     steps:
       - uses: appleboy/ssh-action@v1
         with:
           host: ${{secrets.SSH_HOST}}
           username: ${{secrets.SSH_USER}}
           key: ${{secrets.SSH_PRIVATE_KEY}}
+          envs: IMAGE_TAG
           script: |
             set -e
             cd /home/taskmanager
