@@ -19,7 +19,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 })
 
 app.get('/health', (_req: Request, res: Response) => {
-    res.status(200).json({ status: 'ok ok test' })
+    res.status(200).json({ status: 'ok ok' })
 })
 
 app.use('/users', UserRouter)
