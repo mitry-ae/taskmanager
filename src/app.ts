@@ -18,7 +18,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next()
 })
 
-app.get('/health2', (_req: Request, res: Response) => {
+app.get('/health', (_req: Request, res: Response) => {
     res.status(200).json({ status: 'ok ok' })
 })
 
