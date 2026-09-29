@@ -1,0 +1,26 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'Short SHA образа, на который откатываемся (тег в ghcr)'
+        required: true
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ github.event.inputs.sha }}
+    steps:
+      - uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: IMAGE_TAG
+          script: |
+            set -e
+            cd /home/taskmanager
+            docker compose pull app
+            docker compose up -d --wait app
