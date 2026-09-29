@@ -76,6 +76,7 @@ jobs:
             cd /home/taskmanager
             git pull
             docker compose pull postgres app nginx
+            bash ./scripts/backup.sh
             docker compose run --rm app npm run migrate:prod
             docker compose up -d --wait postgres app nginx
             docker compose exec nginx nginx -s reload
