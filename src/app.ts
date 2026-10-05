@@ -7,6 +7,7 @@ import { errorMiddleware } from './middlewares/error.middleware';
 import { NotFoundError } from './common/errors';
 import TasksRouter from './modules/tasks/tasks.router'
 import TagsRouter from './modules/tags/tags.router'
+import { register, httpRequestsTotal, httpRequestDuration } from './metrics'
 
 
 const app = express()
@@ -18,8 +19,25 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next()
 })
 
+app.use((req: Request, res: Response, next: NextFunction) => {
+    const start = process.hrtime.bigint()
+    res.on('finish', () => {
+        const durationSeconds = Number(process.hrtime.bigint() - start) / 1e9
+        const route = req.route ? `${req.baseUrl}${req.route.path}` : 'unmatched'
+        const labels = { method: req.method, route, status_code: String(res.statusCode) }
+        httpRequestsTotal.inc(labels)
+        httpRequestDuration.observe(labels, durationSeconds)
+    })
+    next()
+})
+
 app.get('/health', (_req: Request, res: Response) => {
     res.status(200).json({ status: 'ok ok' })
+})
+
+app.get('/metrics', async (_req: Request, res: Response) => {
+    res.set('Content-Type', register.contentType)
+    res.send(await register.metrics())
 })
 
 app.use('/users', UserRouter)
