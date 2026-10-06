@@ -6,6 +6,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_EXPORTER_PASSWORD: ${POSTGRES_EXPORTER_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -14,6 +15,7 @@ services:
       start_period: 5s
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./scripts/create_postgres-exporter_user.sh:/docker-entrypoint-initdb.d/create_postgres-exporter_user.sh:ro
   app:
     image: ghcr.io/mitry-ae/taskmanager:${IMAGE_TAG:-latest}
     container_name: taskmanager
@@ -107,11 +109,29 @@ services:
         max-size: "20m"
         max-file: "3"
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost:9100/metrics"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "-O", "/dev/null", "http://localhost:9100/metrics"]
       interval: 30s
       timeout: 5s
       retries: 3
     command: ["--path.procfs=/host/proc", "--path.sysfs=/host/sys", "--path.rootfs=/host/root"]
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.17.1
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATA_SOURCE_NAME: postgresql://postgres_exporter:${POSTGRES_EXPORTER_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "-O", "/dev/null", "http://localhost:9187/metrics"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    command: ["--web.listen-address=0.0.0.0:9187"]
   certbot:
     image: certbot/certbot
     volumes:
