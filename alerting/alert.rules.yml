@@ -1,0 +1,42 @@
+groups:
+  - name: basic
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} недоступен"
+
+      - alert: PostgresDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Postgres недоступен (экспортёр не может подключиться к базе)"
+
+      - alert: LowDiskSpace
+        expr: node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} < 0.15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "На диске {{ $labels.mountpoint }} осталось меньше 15% свободного места, сейчас {{ $value | humanizePercentage }}"
+      
+      - alert: LowMemory
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Осталось меньше 10% памяти. Доступно {{ $value | humanizePercentage }}"
+      
+      - alert: HighInternalErrorRequests
+        expr: sum(rate(http_requests_total{status_code=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Запросов с ошибками больше 5%. Сейчас {{ $value | humanizePercentage }}"

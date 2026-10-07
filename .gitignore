@@ -6,3 +6,4 @@ TASK.md
 /dist
 docker-compose.override.yml
 /backups
+/secrets

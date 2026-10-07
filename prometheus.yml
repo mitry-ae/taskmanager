@@ -19,3 +19,12 @@ scrape_configs:
     static_configs:
       - targets:
           - "postgres-exporter:9187"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - "alertmanager:9093"
+
+rule_files:
+  - ./alerting/alert.rules.yml
