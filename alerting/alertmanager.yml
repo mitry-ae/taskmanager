@@ -1,0 +1,13 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: "telegram"
+  group_by: ["alertname", "mountpoint"]
+
+
+receivers:
+  - name: "telegram"
+    telegram_configs:
+      - bot_token_file: /etc/alertmanager/telegram_token
+        chat_id: 451454036

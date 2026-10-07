@@ -61,6 +61,7 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
+      - ./alerting:/etc/prometheus/alerting:ro
     logging:
       driver: json-file
       options:
@@ -132,6 +133,23 @@ services:
         max-size: "20m"
         max-file: "3"
     command: ["--web.listen-address=0.0.0.0:9187"]
+  alertmanager:
+    image: prom/alertmanager:v0.34.1
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "-O", "/dev/null", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    volumes:
+      - ./alerting/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./secrets/telegram_token.txt:/etc/alertmanager/telegram_token:ro
+    ports:
+      - "127.0.0.1:9093:9093"
   certbot:
     image: certbot/certbot
     volumes:
