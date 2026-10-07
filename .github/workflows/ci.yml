@@ -75,9 +75,9 @@ jobs:
             set -e
             cd /home/taskmanager
             git pull
-            docker compose pull postgres app nginx prometheus grafana node-exporter postgres-exporter alertmanager
+            docker compose pull --ignore-buildable
             docker compose up -d --wait postgres
             bash ./scripts/backup.sh
             docker compose run --rm app npm run migrate:prod
-            docker compose up -d --wait app nginx prometheus grafana node-exporter postgres-exporter alertmanager tunnel
-            docker compose exec nginx nginx -s reload
+            docker compose up -d --wait app 
+            docker compose up -d --force-recreate --wait nginx prometheus grafana node-exporter postgres-exporter alertmanager tunnel
