@@ -11,3 +11,5 @@ receivers:
     telegram_configs:
       - bot_token_file: /etc/alertmanager/telegram_token
         chat_id: 451454036
+        http_config:
+          proxy_url: socks5://tunnel:1080
