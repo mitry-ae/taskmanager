@@ -1,19 +1,20 @@
 import config from './config'
 import pool from './db/pool'
 import app from './app'
+import logger from './logger'
 
 async function main() {
     try {
         await pool.query('SELECT 1')
-        console.log('DB connected')
-        
-        const server = app.listen(config.PORT, () => console.log(`SERVER started on PORT: ${config.PORT}`))
+        logger.info('DB connected')
+
+        const server = app.listen(config.PORT, () => logger.info({ port: config.PORT }, 'server started'))
         server.on('error', (err) => {
-            console.error('Server failed to start', err)
+            logger.fatal({ err }, 'server failed to start')
             process.exit(1)
         })
     } catch (err) {
-        console.error('Failed to connect to DB', err)
+        logger.fatal({ err }, 'failed to connect to DB')
         process.exit(1)
     }
 }

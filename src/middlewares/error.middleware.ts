@@ -1,5 +1,6 @@
 import { type Request, type Response, type NextFunction } from "express";
 import { AppError } from "../common/errors";
+import logger from "../logger";
 
 export function errorMiddleware(err: unknown, req: Request, res: Response, next: NextFunction) {
 
@@ -11,7 +12,7 @@ export function errorMiddleware(err: unknown, req: Request, res: Response, next:
     if(err instanceof AppError) {
         return res.status(err.statusCode).json({status: "error", message: err.message})
     } else {
-        console.error(err)
+        logger.error({ err, requestId: res.locals.requestId }, 'unhandled error')
         return res.status(500).json({status: "error", message: "Internal Server Error"})
     }
 

@@ -170,6 +170,42 @@ services:
       options:
         max-size: "20m"
         max-file: "3"
+  loki:
+    image: grafana/loki:3.6.17
+    volumes:
+      - ./logging/loki.yml:/etc/loki/loki.yml:ro
+      - loki_data:/loki
+    healthcheck:
+      test: [ "CMD", "/usr/bin/loki", "-health" ]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    restart: unless-stopped
+    command: ["--config.file=/etc/loki/loki.yml"]
+  alloy:
+    image: grafana/alloy:v1.20.1
+    depends_on:
+      loki:
+        condition: service_healthy
+    volumes:
+      - ./logging/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - alloy_data:/var/lib/alloy/data
+    ports:
+      - "127.0.0.1:12345:12345"
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    command: run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
   certbot:
     image: certbot/certbot
     volumes:
@@ -183,3 +219,5 @@ volumes:
   certbot_www:
   prometheus_data:
   grafana_data:
+  loki_data:
+  alloy_data:
