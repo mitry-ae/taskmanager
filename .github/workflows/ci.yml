@@ -80,4 +80,4 @@ jobs:
             bash ./scripts/backup.sh
             docker compose run --rm app npm run migrate:prod
             docker compose up -d --wait app 
-            docker compose up -d --force-recreate --wait nginx prometheus grafana node-exporter postgres-exporter alertmanager tunnel
+            docker compose up -d --force-recreate --wait nginx prometheus grafana node-exporter postgres-exporter alertmanager tunnel loki alloy
