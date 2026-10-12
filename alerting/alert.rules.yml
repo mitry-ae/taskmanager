@@ -40,3 +40,12 @@ groups:
           severity: critical
         annotations:
           summary: "Запросов с ошибками больше 5%. Сейчас {{ $value | humanizePercentage }}"
+
+      - alert: LogsIsStopped
+        expr: sum(rate(loki_distributor_lines_received_total[5m])) == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Нет логов за последние 5 минут"
+          
