@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const tasks_controller_1 = __importDefault(require("./tasks.controller"));
+const auth_middleware_1 = require("../../middlewares/auth.middleware");
+const comments_router_1 = __importDefault(require("../comments/comments.router"));
+const verifyTaskOwnership_middleware_1 = require("../../middlewares/verifyTaskOwnership.middleware");
+const router = (0, express_1.Router)();
+router.post('/', auth_middleware_1.authMiddleware, tasks_controller_1.default.createTask);
+router.get('/', auth_middleware_1.authMiddleware, tasks_controller_1.default.getTasks);
+router.get('/stats', auth_middleware_1.authMiddleware, tasks_controller_1.default.getStats);
+router.get('/:id', auth_middleware_1.authMiddleware, tasks_controller_1.default.getTaskById);
+router.patch('/:id', auth_middleware_1.authMiddleware, tasks_controller_1.default.updateTask);
+router.delete('/:id', auth_middleware_1.authMiddleware, tasks_controller_1.default.deleteTask);
+router.put('/:taskId/tags', auth_middleware_1.authMiddleware, verifyTaskOwnership_middleware_1.verifyTaskOwnership, tasks_controller_1.default.replaceTags);
+router.use('/:taskId/comments', comments_router_1.default);
+exports.default = router;

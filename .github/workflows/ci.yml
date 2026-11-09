@@ -21,15 +21,28 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
 
       - run: npm ci
+        working-directory: backend
+
       - run: npm run build
+        working-directory: backend
+
       - run: npm test
+        working-directory: backend
         env:
           PORT: 3000
           DATABASE_URL: postgres://test:test@localhost:5432/test
           JWT_SECRET: test-secret
           JWT_EXPIRES: 1h
+      - run: npm ci
+        working-directory: frontend
+
+      - run: npm run build
+        working-directory: frontend
   build-and-push:
     needs: build-and-test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -53,11 +66,18 @@ jobs:
 
       - uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./backend
           push: true
           tags: |
-            ghcr.io/mitry-ae/taskmanager:latest
-            ghcr.io/mitry-ae/taskmanager:${{steps.vars.outputs.sha_short}}
+            ghcr.io/mitry-ae/taskmanager-backend:latest
+            ghcr.io/mitry-ae/taskmanager-backend:${{steps.vars.outputs.sha_short}}
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ghcr.io/mitry-ae/taskmanager-frontend:latest
+            ghcr.io/mitry-ae/taskmanager-frontend:${{steps.vars.outputs.sha_short}}
   deploy:
     needs: build-and-push
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -78,6 +98,6 @@ jobs:
             docker compose pull --ignore-buildable
             docker compose up -d --wait postgres
             bash ./scripts/backup.sh
-            docker compose run --rm app npm run migrate:prod
-            docker compose up -d --wait app 
-            docker compose up -d --force-recreate --wait nginx prometheus grafana node-exporter postgres-exporter alertmanager tunnel loki alloy
+            docker compose run --rm app-backend npm run migrate:prod
+            docker compose up -d --wait app-backend
+            docker compose up -d --force-recreate --wait app-frontend nginx prometheus grafana node-exporter postgres-exporter alertmanager tunnel loki alloy

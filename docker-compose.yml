@@ -16,9 +16,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/create_postgres-exporter_user.sh:/docker-entrypoint-initdb.d/create_postgres-exporter_user.sh:ro
-  app:
-    image: ghcr.io/mitry-ae/taskmanager:${IMAGE_TAG:-latest}
-    container_name: taskmanager
+  app-backend:
+    image: ghcr.io/mitry-ae/taskmanager-backend:${IMAGE_TAG:-latest}
+    container_name: taskmanager-backend
     environment:
       NODE_ENV: ${NODE_ENV}
       PORT: ${PORT}
@@ -39,6 +39,22 @@ services:
       timeout: 3s
       retries: 3
       start_period: 10s
+  app-frontend:
+    image: ghcr.io/mitry-ae/taskmanager-frontend:${IMAGE_TAG:-latest}
+    container_name: taskmanager-frontend
+    environment:
+      VITE_API_URL: ${VITE_API_URL}
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
   nginx:
     image: nginx:1.27
     ports:
@@ -49,7 +65,9 @@ services:
       - certbot_conf:/etc/letsencrypt:ro
       - certbot_www:/var/www/certbot:ro
     depends_on:
-      app:
+      app-backend:
+        condition: service_healthy
+      app-frontend:
         condition: service_healthy
     logging:
       driver: json-file

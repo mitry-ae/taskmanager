@@ -1,0 +1,8 @@
+.git
+.env
+/node_modules
+TASK.md
+/docs
+.DS_STORE
+AGENTS.md
+/.terraform
