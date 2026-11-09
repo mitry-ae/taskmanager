@@ -61,14 +61,14 @@ app.get('/metrics', async (_req: Request, res: Response) => {
     res.send(await register.metrics())
 })
 
-app.use('/users', UserRouter)
-app.use('/auth', AuthRouter)
-app.use('/tasks', TasksRouter)
-app.use('/tags', TagsRouter)
+app.use('/api/users', UserRouter)
+app.use('/api/auth', AuthRouter)
+app.use('/api/tasks', TasksRouter)
+app.use('/api/tags', TagsRouter)
 
 // Маршруты для нагрузочных тестов не должны попадать в прод
 if (process.env.NODE_ENV !== 'production') {
-    app.use('/debug', DebugRouter)
+    app.use('/api/debug', DebugRouter)
 }
 
 
