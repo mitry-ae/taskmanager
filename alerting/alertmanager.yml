@@ -22,7 +22,8 @@ route:
 receivers:
   - name: "email"
     email_configs:
-      - to: mitry.ae@yandex.ru
+      - send_resolved: true
+        to: mitry.ae@yandex.ru
         from: war-machine2013@yandex.ru
         smarthost: smtp.yandex.ru:465
         auth_username: war-machine2013@yandex.ru
