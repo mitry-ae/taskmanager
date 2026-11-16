@@ -13,12 +13,14 @@ services:
       timeout: 3s
       retries: 5
       start_period: 5s
+    restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/create_postgres-exporter_user.sh:/docker-entrypoint-initdb.d/create_postgres-exporter_user.sh:ro
   app-backend:
     image: ghcr.io/mitry-ae/taskmanager-backend:${IMAGE_TAG:-latest}
     container_name: taskmanager-backend
+    restart: unless-stopped
     environment:
       NODE_ENV: ${NODE_ENV}
       PORT: ${PORT}
@@ -42,6 +44,7 @@ services:
   app-frontend:
     image: ghcr.io/mitry-ae/taskmanager-frontend:${IMAGE_TAG:-latest}
     container_name: taskmanager-frontend
+    restart: unless-stopped
     environment:
       VITE_API_URL: ${VITE_API_URL}
     logging:
@@ -60,6 +63,7 @@ services:
     ports:
       - 80:80
       - 443:443
+    restart: unless-stopped
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - certbot_conf:/etc/letsencrypt:ro
@@ -76,6 +80,7 @@ services:
         max-file: "3"
   prometheus:
     image: prom/prometheus:v3.13.4
+    restart: unless-stopped
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -96,6 +101,7 @@ services:
     command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=7d", "--storage.tsdb.retention.size=150MB"]
   grafana:
     image: grafana/grafana:13.2
+    restart: unless-stopped
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
@@ -135,6 +141,7 @@ services:
     command: ["--path.procfs=/host/proc", "--path.sysfs=/host/sys", "--path.rootfs=/host/root"]
   postgres-exporter:
     image: quay.io/prometheuscommunity/postgres-exporter:v0.17.1
+    restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
@@ -153,6 +160,7 @@ services:
     command: ["--web.listen-address=0.0.0.0:9187"]
   alertmanager:
     image: prom/alertmanager:v0.34.1
+    restart: unless-stopped
     depends_on:
       tunnel:
         condition: service_healthy
